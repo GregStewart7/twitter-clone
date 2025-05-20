@@ -3,18 +3,25 @@ import express from "express";
 import dotenv from "dotenv";
 import { urlencoded } from "express";
 import cookieParser from "cookie-parser";
+import {v2 as cloudinary} from "cloudinary";
 // Import authentication routes from a separate module
 // This modular approach helps in organizing different route handlers
 import authRoutes from "./routes/auth.routes.js";
 import connectMongoDB from "./db/connectMongoDB.js";
+import userRoutes from "./routes/user.routes.js";
 // Load environment variables
 dotenv.config();
+
+// Configure Cloudinary for image uploads
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-console.log(process.env.MONGO_URI); // Log DB URI for debugging
 
 // Middleware to parse JSON and urlencoded bodies
 app.use(express.json());
@@ -23,6 +30,9 @@ app.use(cookieParser());
 
 // Mount auth routes with /api/auth prefix
 app.use("/api/auth", authRoutes);
+
+// Mount user routes with /api/users prefix
+app.use("/api/users", userRoutes);
 
 // Health check endpoint
 app.get("/", (req, res) => {
